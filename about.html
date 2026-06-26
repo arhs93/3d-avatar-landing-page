@@ -477,6 +477,16 @@
       requestAnimationFrame(moveTrail);
     })();
 
+    // Fade nav + bubble out as user scrolls into cards
+    const nav = document.querySelector('nav');
+    const bubble = document.querySelector('.bubble');
+
+    window.addEventListener('scroll', () => {
+      const opacity = Math.max(0, 1 - window.scrollY / 100);
+      nav.style.opacity = opacity;
+      if (bubble) bubble.style.opacity = opacity;
+    }, { passive: true });
+
     document.querySelectorAll('a[href]').forEach(link => {
       const href = link.getAttribute('href');
       if (href && !href.startsWith('http') && !href.startsWith('mailto')) {
