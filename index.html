@@ -80,14 +80,13 @@
       left: 50%;
       transform: translateX(-50%);
       background: white;
-      color: #111;
-      border-radius: 20px;
-      padding: 1rem 1.5rem;
-      max-width: min(320px, 80vw);
-      text-align: center;
+      border-radius: 8px;
+      padding: 1.1rem 1.3rem 0.9rem;
+      width: min(300px, 80vw);
+      text-align: left;
       z-index: 10;
-      pointer-events: none;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+      pointer-events: all;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
       transition: opacity 0.4s, transform 0.4s;
     }
 
@@ -97,31 +96,43 @@
       pointer-events: none;
     }
 
-    /* Tail pointing down toward avatar head */
     .bubble::after {
       content: '';
       position: absolute;
-      bottom: -14px;
+      bottom: -12px;
       left: 50%;
       transform: translateX(-50%);
-      border: 10px solid transparent;
-      border-top: 14px solid white;
+      border: 8px solid transparent;
+      border-top: 12px solid white;
       border-bottom: none;
     }
 
-    .bubble strong {
-      display: block;
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin-bottom: 0.4rem;
-      color: #0a0a0f;
+    #bubble-text {
+      font-size: 0.88rem;
+      color: #333;
+      line-height: 1.65;
+      transition: opacity 0.15s;
     }
 
-    .bubble p {
-      font-size: 0.85rem;
-      color: #555;
-      line-height: 1.6;
+    .bubble-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.7rem;
     }
+
+    #bubble-next {
+      background: none;
+      border: none;
+      font-size: 0.78rem;
+      color: #999;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+
+    #bubble-next:hover { color: #333; }
 
     #hint {
       position: fixed;
@@ -183,8 +194,10 @@
   <div id="loading">Loading...</div>
 
   <div class="bubble" id="bubble">
-    <strong>Hi, I'm Aris.</strong>
-    <p>I love SEO, Pizza and Escape rooms with my girlfriend.</p>
+    <p id="bubble-text">Hey, I'm Aris, welcome to my website.</p>
+    <div class="bubble-footer">
+      <button id="bubble-next">Next →</button>
+    </div>
   </div>
 
   <div id="hint">Tap to dance</div>
@@ -192,11 +205,46 @@
   <canvas id="canvas"></canvas>
 
   <script>
-    // Fade in on page load
+    // Page fade in
     const overlay = document.getElementById('page-overlay');
     window.addEventListener('load', () => {
       requestAnimationFrame(() => overlay.classList.add('hidden'));
     });
+
+    // Bubble messages
+    const messages = [
+      "Hey, I'm Aris, welcome to my website.",
+      "Here you'll see a bit of who I am and what I do.",
+      "I'm into SEO, escape rooms with my girlfriend, and messing around with anything AI-related.",
+      "Wanna see me dance? Just give me a little push!"
+    ];
+
+    let msgIndex = 0;
+    const bubbleText = document.getElementById('bubble-text');
+    const bubbleNext = document.getElementById('bubble-next');
+
+    function updateBubble() {
+      bubbleText.style.opacity = '0';
+      setTimeout(() => {
+        bubbleText.textContent = messages[msgIndex];
+        bubbleText.style.opacity = '1';
+        bubbleNext.style.display = msgIndex === messages.length - 1 ? 'none' : 'inline';
+      }, 150);
+    }
+
+    bubbleNext.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (msgIndex < messages.length - 1) {
+        msgIndex++;
+        updateBubble();
+      }
+    });
+
+    // Called from Three.js module after dance ends
+    window.resetBubble = () => {
+      msgIndex = 0;
+      updateBubble();
+    };
   </script>
 
   <script type="importmap">
@@ -353,6 +401,7 @@
           neckBone = idleNeckBone;
           isDancing = false;
           bubble.classList.remove('hidden');
+          if (window.resetBubble) window.resetBubble();
         });
       }
 
@@ -364,7 +413,7 @@
     window.addEventListener('touchend', triggerDance, { passive: true });
 
     function triggerDance(e) {
-      if (e.target.closest('a')) return;
+      if (e.target.closest('a') || e.target.closest('#bubble-next')) return;
       if (!isDancing && danceModel && danceMixer && danceClip) {
         isDancing = true;
         headBone = null;
