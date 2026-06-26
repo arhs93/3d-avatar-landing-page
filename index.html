@@ -189,12 +189,56 @@
       text-transform: uppercase;
       z-index: 10;
       pointer-events: none;
-      animation: hint-pulse 2.4s ease-in-out infinite;
+      animation: hint-pulse 3.5s steps(1) infinite;
     }
 
     @keyframes hint-pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.35; }
+      0%, 75%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(255,230,0,0.7), 0 0 24px rgba(255,230,0,0.3);
+        transform: translateX(-50%) skewX(0deg);
+        clip-path: none;
+      }
+      76% {
+        opacity: 0.9;
+        text-shadow: -3px 0 #00F5FF, 3px 0 #FFE600;
+        transform: translateX(calc(-50% - 3px)) skewX(-4deg);
+      }
+      77% {
+        opacity: 1;
+        text-shadow: 3px 0 #00F5FF, -3px 0 #FFE600;
+        transform: translateX(calc(-50% + 3px)) skewX(2deg);
+      }
+      78% {
+        opacity: 0.3;
+        text-shadow: none;
+        transform: translateX(-50%) skewX(0deg);
+      }
+      79% {
+        opacity: 1;
+        text-shadow: -2px 0 #FFE600, 2px 0 #00F5FF;
+        transform: translateX(calc(-50% + 2px)) skewX(-2deg);
+      }
+      80% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(255,230,0,0.7), 0 0 24px rgba(255,230,0,0.3);
+        transform: translateX(-50%) skewX(0deg);
+      }
+      88% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(255,230,0,0.7);
+        transform: translateX(-50%);
+      }
+      89% {
+        opacity: 0.1;
+        text-shadow: 2px 0 #00F5FF;
+        transform: translateX(calc(-50% + 2px));
+      }
+      90% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(255,230,0,0.7);
+        transform: translateX(-50%);
+      }
     }
 
     /* ── Page overlay ── */
