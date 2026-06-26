@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aris Kleidas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%);
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      color: white;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
+    nav {
+      position: fixed;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      gap: 2rem;
+    }
+
+    nav a {
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Speech bubble */
+    .bubble {
+      position: fixed;
+      top: 7%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      color: #111;
+      border-radius: 20px;
+      padding: 1rem 1.5rem;
+      max-width: min(320px, 80vw);
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+
+    .bubble.hidden {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-8px);
+      pointer-events: none;
+    }
+
+    /* Tail pointing down toward avatar head */
+    .bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 10px solid transparent;
+      border-top: 14px solid white;
+      border-bottom: none;
+    }
+
+    .bubble strong {
+      display: block;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: #0a0a0f;
+    }
+
+    .bubble p {
+      font-size: 0.85rem;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    #hint {
+      position: fixed;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.25);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      z-index: 10;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+
+    #loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: rgba(255,255,255,0.3);
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      z-index: 30;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" style="color:white;">Home</a>
+    <a href="about.html" style="color:rgba(255,255,255,0.4);">About</a>
+  </nav>
+
+  <div id="loading">Loading...</div>
+
+  <div class="bubble" id="bubble">
+    <strong>Hi, I'm Aris.</strong>
+    <p>I love SEO, Pizza and Escape rooms with my girlfriend.</p>
+  </div>
+
+  <div id="hint">Tap to dance</div>
+
+  <canvas id="canvas"></canvas>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.0, 3.5);
+    camera.lookAt(0, 1.0, 0);
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas: document.getElementById('canvas'),
+      antialias: true,
+      alpha: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    keyLight.position.set(2, 3, 4);
+    scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight(0x6688cc, 0.5);
+    fillLight.position.set(-3, 1, -2);
+    scene.add(fillLight);
+
+    let mouseX = 0, mouseY = 0, smoothX = 0, smoothY = 0;
+
+    // Mouse tracking
+    window.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    // Touch tracking for mobile
+    window.addEventListener('touchmove', (e) => {
+      const t = e.touches[0];
+      mouseX = (t.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(t.clientY / window.innerHeight) * 2 + 1;
+    }, { passive: true });
+
+    const clock = new THREE.Clock();
+    const bubble = document.getElementById('bubble');
+    const hint = document.getElementById('hint');
+    let isDancing = false;
+    let idleModel = null, danceModel = null;
+    let idleMixer = null, danceMixer = null;
+    let danceClip = null;
+    let idleHeadBone = null, idleNeckBone = null;
+    let headBone = null, neckBone = null;
+    let loadedCount = 0;
+
+    const BONE_NAMES = {
+      head: ['Head', 'mixamorigHead'],
+      neck: ['Neck', 'mixamorigNeck']
+    };
+
+    function findBones(model, onHead, onNeck) {
+      model.traverse((obj) => {
+        if (obj.isSkinnedMesh && obj.skeleton) {
+          obj.skeleton.bones.forEach((bone) => {
+            if (BONE_NAMES.head.includes(bone.name)) onHead(bone);
+            if (BONE_NAMES.neck.includes(bone.name)) onNeck(bone);
+          });
+        }
+      });
+    }
+
+    function autoFit(model) {
+      model.position.set(0, 0, 0);
+      model.updateMatrixWorld();
+      const box = new THREE.Box3().setFromObject(model);
+      const height = box.max.y - box.min.y;
+      model.scale.setScalar(1.8 / height);
+      model.position.set(0, 0, 0);
+      model.updateMatrixWorld();
+      const fitted = new THREE.Box3().setFromObject(model);
+      model.position.y = -fitted.min.y;
+      model.position.x = 0;
+    }
+
+    const loader = new GLTFLoader();
+
+    loader.load('idle.glb', (gltf) => {
+      idleModel = gltf.scene;
+      autoFit(idleModel);
+      scene.add(idleModel);
+
+      findBones(idleModel,
+        (b) => { idleHeadBone = b; headBone = b; },
+        (b) => { idleNeckBone = b; neckBone = b; }
+      );
+
+      if (gltf.animations.length > 0) {
+        idleMixer = new THREE.AnimationMixer(idleModel);
+        idleMixer.clipAction(gltf.animations[0]).play();
+      }
+
+      if (++loadedCount === 2) document.getElementById('loading').remove();
+    }, undefined, (err) => console.error('idle.glb failed:', err));
+
+    loader.load('dance.glb', (gltf) => {
+      danceModel = gltf.scene;
+      autoFit(danceModel);
+      danceModel.visible = false;
+      scene.add(danceModel);
+
+      if (gltf.animations.length > 0) {
+        danceClip = gltf.animations[0];
+        danceMixer = new THREE.AnimationMixer(danceModel);
+
+        danceMixer.addEventListener('finished', () => {
+          danceModel.visible = false;
+          idleModel.visible = true;
+          headBone = idleHeadBone;
+          neckBone = idleNeckBone;
+          isDancing = false;
+          bubble.classList.remove('hidden');
+        });
+      }
+
+      if (++loadedCount === 2) document.getElementById('loading').remove();
+    }, undefined, (err) => console.error('dance.glb failed:', err));
+
+    // Click or tap to dance
+    window.addEventListener('click', triggerDance);
+    window.addEventListener('touchend', triggerDance, { passive: true });
+
+    function triggerDance() {
+      if (!isDancing && danceModel && danceMixer && danceClip) {
+        isDancing = true;
+        headBone = null;
+        neckBone = null;
+        idleModel.visible = false;
+        danceModel.visible = true;
+        bubble.classList.add('hidden');
+        hint.style.opacity = '0';
+
+        danceMixer.stopAllAction();
+        const action = danceMixer.clipAction(danceClip);
+        action.reset();
+        action.setLoop(THREE.LoopOnce);
+        action.clampWhenFinished = true;
+        action.play();
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    (function animate() {
+      requestAnimationFrame(animate);
+
+      const delta = clock.getDelta();
+      if (idleMixer) idleMixer.update(delta);
+      if (danceMixer) danceMixer.update(delta);
+
+      smoothX += (mouseX - smoothX) * 0.08;
+      smoothY += (mouseY - smoothY) * 0.08;
+
+      if (headBone) {
+        headBone.rotation.y = smoothX * 0.45;
+        headBone.rotation.x = -smoothY * 0.3;
+      }
+      if (neckBone) {
+        neckBone.rotation.y = smoothX * 0.15;
+        neckBone.rotation.x = -smoothY * 0.1;
+      }
+
+      renderer.render(scene, camera);
+    })();
+  </script>
+
+</body>
+</html>
