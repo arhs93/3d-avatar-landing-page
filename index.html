@@ -148,9 +148,32 @@
       text-transform: uppercase;
       z-index: 30;
     }
+
+    #page-overlay {
+      position: fixed;
+      inset: 0;
+      background: #0a0a0f;
+      z-index: 99;
+      pointer-events: none;
+      opacity: 1;
+      transform: scale(1.05);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    #page-overlay.visible {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    #page-overlay.hidden {
+      opacity: 0;
+      transform: scale(1);
+    }
   </style>
 </head>
 <body>
+
+  <div id="page-overlay"></div>
 
   <nav>
     <a href="index.html" style="color:white;">Home</a>
@@ -167,6 +190,14 @@
   <div id="hint">Tap to dance</div>
 
   <canvas id="canvas"></canvas>
+
+  <script>
+    // Fade in on page load
+    const overlay = document.getElementById('page-overlay');
+    window.addEventListener('load', () => {
+      requestAnimationFrame(() => overlay.classList.add('hidden'));
+    });
+  </script>
 
   <script type="importmap">
     {
@@ -205,6 +236,32 @@
     scene.add(fillLight);
 
     let mouseX = 0, mouseY = 0, smoothX = 0, smoothY = 0;
+    let isZooming = false;
+    let zoomTarget = null;
+
+    // Nav zoom transition
+    document.querySelectorAll('nav a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && !href.startsWith('http') && !href.startsWith('mailto')) {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          isZooming = true;
+          zoomTarget = href;
+
+          // Fade overlay in after zoom has started
+          setTimeout(() => {
+            const overlay = document.getElementById('page-overlay');
+            if (overlay) {
+              overlay.style.transition = 'opacity 0.4s ease';
+              overlay.style.opacity = '1';
+            }
+          }, 350);
+
+          // Navigate after zoom + fade completes
+          setTimeout(() => window.location.href = href, 800);
+        });
+      }
+    });
 
     // Mouse tracking
     window.addEventListener('mousemove', (e) => {
@@ -306,7 +363,8 @@
     window.addEventListener('click', triggerDance);
     window.addEventListener('touchend', triggerDance, { passive: true });
 
-    function triggerDance() {
+    function triggerDance(e) {
+      if (e.target.closest('a')) return;
       if (!isDancing && danceModel && danceMixer && danceClip) {
         isDancing = true;
         headBone = null;
@@ -337,6 +395,13 @@
       const delta = clock.getDelta();
       if (idleMixer) idleMixer.update(delta);
       if (danceMixer) danceMixer.update(delta);
+
+      // Camera zoom toward avatar on nav click
+      if (isZooming) {
+        camera.position.z = THREE.MathUtils.lerp(camera.position.z, 0.8, 0.05);
+        camera.position.y = THREE.MathUtils.lerp(camera.position.y, 1.45, 0.05);
+        camera.lookAt(0, 1.45, 0);
+      }
 
       smoothX += (mouseX - smoothX) * 0.08;
       smoothY += (mouseY - smoothY) * 0.08;

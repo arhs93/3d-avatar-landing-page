@@ -129,6 +129,22 @@
       z-index: 40;
     }
 
+    #page-overlay {
+      position: fixed;
+      inset: 0;
+      background: #0a0a0f;
+      z-index: 99;
+      pointer-events: none;
+      opacity: 1;
+      transform: scale(1.05);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    #page-overlay.hidden {
+      opacity: 0;
+      transform: scale(1);
+    }
+
     /* ── DESKTOP layout ── */
     @media (min-width: 769px) {
       body { overflow: hidden; height: 100vh; }
@@ -267,6 +283,8 @@
 </head>
 <body>
 
+  <div id="page-overlay"></div>
+
   <div id="loading">Loading...</div>
 
   <nav>
@@ -354,6 +372,27 @@
   </div>
 
   <canvas id="canvas"></canvas>
+
+  <script>
+    const overlay = document.getElementById('page-overlay');
+
+    window.addEventListener('load', () => {
+      requestAnimationFrame(() => {
+        overlay.classList.add('hidden');
+      });
+    });
+
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && !href.startsWith('http') && !href.startsWith('mailto')) {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          overlay.classList.remove('hidden');
+          setTimeout(() => window.location.href = href, 450);
+        });
+      }
+    });
+  </script>
 
   <script type="importmap">
     {
