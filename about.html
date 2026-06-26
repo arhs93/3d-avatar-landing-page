@@ -170,31 +170,36 @@
       }
 
       .center { /* avatar shows through */ }
-
-      .mobile-section { display: none; }
     }
 
     /* ── MOBILE layout ── */
     @media (max-width: 768px) {
       body { overflow-y: auto; height: auto; }
 
-      .layout { display: none; }
-
-      .hero {
-        height: 100vh;
-        position: relative;
-        z-index: 1;
-      }
-
-      .mobile-section {
+      .layout {
         position: relative;
         z-index: 10;
+        display: block;
+        padding-top: 100vh;
+      }
+
+      .left {
         background: #0a0a0f;
-        padding: 2rem 1.2rem 3rem;
+        padding: 2rem 1.2rem 0;
         display: flex;
         flex-direction: column;
         gap: 1.2rem;
       }
+
+      .right {
+        background: #0a0a0f;
+        padding: 1rem 1.2rem 3rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+
+      .center { display: none; }
     }
 
     /* Cards — shared */
@@ -333,41 +338,6 @@
         <a class="cta-link" href="https://www.linkedin.com/in/aris-kleidas/" target="_blank">Connect on LinkedIn →</a>
         <span class="email">kleidas.aris@gmail.com</span>
       </div>
-    </div>
-  </div>
-
-  <!-- Mobile hero (avatar shows through) -->
-  <div class="hero"></div>
-
-  <!-- Mobile cards below fold -->
-  <div class="mobile-section">
-    <div class="card">
-      <h3>What I Do</h3>
-      <p>I help Shopify and WooCommerce stores grow organic revenue through technical SEO, clear site structure, and smart prioritization.</p>
-      <p style="margin-top:0.7rem;color:rgba(255,255,255,0.4);font-size:0.82rem;">Most websites don't fail because SEO is hard — they fail because they lack clarity and the right foundations.</p>
-      <ul>
-        <li>Technical audits & clear recommendations</li>
-        <li>Content audits — the why, what & how</li>
-        <li>Content strategy for revenue & visibility</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h3>How I Work</h3>
-      <div class="row">
-        <div class="row-item"><strong>Revenue-Focused</strong><span>Every change is designed to increase your revenue.</span></div>
-        <div class="row-item"><strong>Clear Steps</strong><span>You always know what we're doing next.</span></div>
-        <div class="row-item"><strong>Data-Driven</strong><span>Facts and numbers guide every decision.</span></div>
-        <div class="row-item"><strong>Simple Communication</strong><span>No jargon. Plain language, always.</span></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Work With Me</h3>
-      <p>Every month I offer <strong style="color:white;">3 free mini audits</strong> — a clear look at your site's health.</p>
-      <p style="margin-top:0.6rem;color:rgba(255,255,255,0.45);font-size:0.82rem;">DM me <em>"Hey, you!"</em> + your URL to claim one.</p>
-      <a class="cta-link" href="https://www.linkedin.com/in/aris-kleidas/" target="_blank">Connect on LinkedIn →</a>
-      <span class="email">kleidas.aris@gmail.com</span>
     </div>
   </div>
 
