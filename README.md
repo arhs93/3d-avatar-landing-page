@@ -1,148 +1,101 @@
 # 3D Avatar Landing Page
 
-An interactive personal landing page featuring a 3D avatar that follows your mouse, breathes in idle, and dances on click. Built with plain HTML and Three.js — no frameworks, no build tools, no npm.
+An interactive personal landing page with a 3D avatar that follows your mouse, breathes on idle, and dances on click. Built with plain HTML and Three.js — no frameworks, no npm, no build tools.
 
 **Live demo:** [meet-aris.me](https://meet-aris.me)
 
 ---
 
-## Features
-
-- 3D avatar with head that follows your mouse (left, right, up, down)
-- Breathing idle animation on loop
-- Click / tap anywhere → avatar hip hop dances → returns to idle
-- Speech bubble above head (disappears on click, returns after dance)
-- About page with info cards and zoomed upper body view
-- Mobile responsive — touch tracking + scrollable about page
-- Zero dependencies — Three.js loaded via CDN
-
----
-
-## Tech Stack
-
-| Layer | Tool |
-|---|---|
-| 3D Engine | [Three.js](https://threejs.org/) via CDN |
-| Avatar | [Ready Player Me](https://readyplayer.me/) |
-| Animations | [Mixamo](https://mixamo.com/) |
-| Hosting | Any static host (Cloudways, Netlify, etc.) |
-
----
-
-## File Structure
+## What's Inside
 
 ```
 landing-page/
-├── index.html       ← Homepage with avatar + speech bubble
-├── about.html       ← About page with info cards
-├── idle.glb         ← Avatar with breathing animation (from Mixamo)
-├── dance.glb        ← Avatar with hip hop dance animation (from Mixamo)
-├── .htaccess        ← Removes .html extension from URLs
-└── README.md
+├── index.html    ← Homepage — avatar, speech bubble, dance on click
+├── about.html    ← About page — cards left/right, zoomed upper body
+├── idle.glb      ← Avatar + breathing idle animation (Mixamo)
+├── dance.glb     ← Avatar + hip hop dance animation (Mixamo)
+└── .htaccess     ← Clean URLs (removes .html extension)
 ```
 
 ---
 
-## How to Build Your Own
+## Stack
 
-### Step 1 — Create your 3D avatar
+- **Three.js** via CDN — 3D rendering, bone rotation, animation
+- **Ready Player Me** — custom 3D avatar that looks like you
+- **Mixamo** — free animations (idle + dance), exported as GLB
+- **Cloudways (PHP app)** — deployed as a static site on an existing server
 
-1. Go to [readyplayer.me](https://readyplayer.me)
-2. Take a selfie or customize your avatar manually
-3. Download as `.glb`
+---
 
-### Step 2 — Add animations
+## How It Works
 
-1. Go to [mixamo.com](https://mixamo.com)
-2. Upload your `.glb` — Mixamo will auto-rig it
-3. Search **"Breathing Idle"** → download as FBX (with skin)
-4. Search **"Hip Hop Dancing"** → download as FBX (with skin)
-5. Convert both FBX files to GLB using [https://products.aspose.app/3d/conversion/fbx-to-glb](https://products.aspose.app/3d/conversion/fbx-to-glb) or Blender
-6. Rename them `idle.glb` and `dance.glb`
-
-### Step 3 — Customize the content
-
-In `index.html`, update the speech bubble text:
-```html
-<div class="bubble" id="bubble">
-  <strong>Hi, I'm [Your Name].</strong>
-  <p>Your personal tagline here.</p>
-</div>
+**Head tracking:**
+Mouse position is normalized to `-1 → 1`. Every frame the head and neck bones lerp toward the target angle:
+```js
+smoothX += (mouseX - smoothX) * 0.08;
+headBone.rotation.y = smoothX * 0.45;
+headBone.rotation.x = -smoothY * 0.3;
 ```
 
-In `about.html`, update the cards with your own info (search for the card sections).
+**Auto-sizing:**
+The GLB is scaled to a standard 1.8 unit height regardless of source scale:
+```js
+const scale = 1.8 / height;
+model.scale.setScalar(scale);
+```
 
-### Step 4 — Run locally
+**Dance interaction:**
+Click loads the dance model, plays it once with `LoopOnce`, then swaps back to idle on finish.
 
-You need a local server to load `.glb` files (browsers block local file access).
+---
 
-**Option A — Python:**
+## Setup
+
+### 1. Get your avatar
+- Go to [readyplayer.me](https://readyplayer.me), create your avatar, download `.glb`
+
+### 2. Add animations
+- Upload your `.glb` to [mixamo.com](https://mixamo.com)
+- Download **Breathing Idle** and **Hip Hop Dancing** as FBX (with skin)
+- Convert FBX → GLB using [Aspose](https://products.aspose.app/3d/conversion/fbx-to-glb) or Blender
+- Rename: `idle.glb` and `dance.glb`
+
+### 3. Run locally
 ```bash
 python3 -m http.server 8000
+# open http://localhost:8000
 ```
-Then open `http://localhost:8000`
+> A local server is required — browsers block loading local `.glb` files directly.
 
-**Option B — VS Code:**
-Install the Live Server extension → right-click `index.html` → Open with Live Server
+### 4. Deploy on Cloudways
+I had an existing Cloudways server, so I created a new **PHP application** on it and deployed the files via SFTP (FileZilla):
 
-### Step 5 — Deploy
-
-**Netlify Drop (easiest):**
-1. Go to [netlify.com/drop](https://app.netlify.com/drop)
-2. Drag your entire folder onto the page
-3. Get an instant public URL
-
-**Any PHP host (Cloudways, shared hosting):**
-1. Upload all files to `public_html` via FTP/SFTP
-2. The `.htaccess` handles clean URLs automatically
+1. In Cloudways dashboard → your server → **Add Application** → choose **PHP**
+2. Connect via FileZilla using your server's **Master Credentials** (SFTP, port 22)
+3. Navigate to `/applications/{app-folder}/public_html/`
+4. Upload all files: `index.html`, `about.html`, `idle.glb`, `dance.glb`, `.htaccess`
+5. Add your domain under **Domain Management** → point DNS A record to your server IP
+6. Install SSL under **SSL Certificate**
+7. Purge **Varnish cache** after every upload
 
 ---
 
-## Customization
+## Customize
 
-### Change avatar position
-In `index.html` inside the `autoFit` function, adjust:
-```js
-model.position.x = 0; // positive = right, negative = left
-```
-
-### Change camera zoom
-```js
-camera.position.set(0, 1.0, 3.5); // z = distance (lower = closer)
-camera.lookAt(0, 1.0, 0);         // y = height you're looking at
-```
-
-### Change head rotation sensitivity
-```js
-headBone.rotation.y = smoothX * 0.45;  // left/right — lower = subtler
-headBone.rotation.x = -smoothY * 0.3; // up/down — lower = subtler
-```
-
-### Change background
-In the CSS:
-```css
-body {
-  background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%);
-}
-```
-
----
-
-## How the Head Tracking Works
-
-1. Mouse/touch position is normalized to `-1 → 1` on both axes
-2. Every frame (60fps), the avatar's head and neck bones are rotated toward the target
-3. `lerp` smoothing (10% per frame) creates the natural easing effect
-
-```js
-smoothX += (mouseX - smoothX) * 0.08;  // lerp
-headBone.rotation.y = smoothX * 0.45;  // apply to bone
-```
+| What | Where |
+|---|---|
+| Speech bubble text | `index.html` → `.bubble` div |
+| About page content | `about.html` → `.card` divs |
+| Avatar position | `autoFit()` → `model.position.x` |
+| Camera zoom | `camera.position.set(0, 1.0, 3.5)` — lower z = closer |
+| Head rotation amount | `smoothX * 0.45` — lower = subtler |
+| Background color | CSS `body` → `radial-gradient` |
 
 ---
 
 ## License
 
-MIT — free to use, modify, and share. A credit link is appreciated but not required.
+MIT — free to use and modify. Credit appreciated.
 
 Built by [Aris Kleidas](https://meet-aris.me)
