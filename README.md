@@ -13,8 +13,7 @@ landing-page/
 ├── index.html    ← Homepage — avatar, speech bubble, dance on click
 ├── about.html    ← About page — cards left/right, zoomed upper body
 ├── idle.glb      ← Avatar + breathing idle animation (Mixamo)
-├── dance.glb     ← Avatar + hip hop dance animation (Mixamo)
-└── .htaccess     ← Clean URLs (removes .html extension)
+└── dance.glb     ← Avatar + hip hop dance animation (Mixamo)
 ```
 
 ---
@@ -74,7 +73,7 @@ I had an existing Cloudways server, so I created a new **PHP application** on it
 1. In Cloudways dashboard → your server → **Add Application** → choose **PHP**
 2. Connect via FileZilla using your server's **Master Credentials** (SFTP, port 22)
 3. Navigate to `/applications/{app-folder}/public_html/`
-4. Upload all files: `index.html`, `about.html`, `idle.glb`, `dance.glb`, `.htaccess`
+4. Upload all files: `index.html`, `about.html`, `idle.glb`, `dance.glb`
 5. Add your domain under **Domain Management** → point DNS A record to your server IP
 6. Install SSL under **SSL Certificate**
 7. Purge **Varnish cache** after every upload
