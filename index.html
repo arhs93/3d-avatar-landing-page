@@ -38,13 +38,13 @@
   }
   </script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%);
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Rajdhani', system-ui, sans-serif;
       overflow: hidden;
       height: 100vh;
       color: white;
@@ -56,6 +56,7 @@
       width: 100%; height: 100%;
     }
 
+    /* ── Nav ── */
     nav {
       position: fixed;
       top: 1.5rem;
@@ -63,30 +64,36 @@
       transform: translateX(-50%);
       z-index: 20;
       display: flex;
-      gap: 2rem;
+      gap: 2.5rem;
     }
 
     nav a {
       text-decoration: none;
-      font-size: 0.85rem;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
       letter-spacing: 2px;
       text-transform: uppercase;
+      transition: color 0.2s, text-shadow 0.2s;
     }
 
-    /* Speech bubble */
+    nav a:hover { text-shadow: 0 0 8px currentColor; }
+
+    /* ── Speech bubble ── */
     .bubble {
       position: fixed;
       top: 7%;
       left: 50%;
       transform: translateX(-50%);
-      background: white;
-      border-radius: 8px;
+      background: rgba(10, 10, 15, 0.92);
+      border: 1px solid rgba(255, 230, 0, 0.25);
+      border-left: 3px solid #FFE600;
+      box-shadow: 0 0 24px rgba(255, 230, 0, 0.1), inset 0 0 20px rgba(255, 230, 0, 0.03);
+      border-radius: 0;
       padding: 1.1rem 1.3rem 0.9rem;
-      width: min(300px, 80vw);
+      width: min(300px, 82vw);
       text-align: left;
       z-index: 10;
       pointer-events: all;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
       transition: opacity 0.4s, transform 0.4s;
     }
 
@@ -96,70 +103,95 @@
       pointer-events: none;
     }
 
-    .bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      border: 8px solid transparent;
-      border-top: 12px solid white;
-      border-bottom: none;
-    }
-
     #bubble-text {
-      font-size: 0.88rem;
-      color: #333;
-      line-height: 1.65;
-      transition: opacity 0.15s;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.98rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.6;
+      min-height: 1.6em;
     }
 
     .bubble-footer {
       display: flex;
       justify-content: flex-end;
       margin-top: 0.7rem;
+      min-height: 1.2em;
     }
 
     #bubble-next {
       background: none;
       border: none;
-      font-size: 0.78rem;
-      color: #999;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.58rem;
+      color: #00F5FF;
       cursor: pointer;
-      font-family: inherit;
       padding: 0;
-      letter-spacing: 0.5px;
-      transition: color 0.2s;
+      letter-spacing: 1px;
+      transition: color 0.2s, text-shadow 0.2s;
     }
 
-    #bubble-next:hover { color: #333; }
+    #bubble-next:hover {
+      color: white;
+      text-shadow: 0 0 8px #00F5FF;
+    }
 
+    /* ── Loading bar ── */
+    #loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 30;
+      text-align: center;
+    }
+
+    .loading-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 4px;
+      color: #00F5FF;
+      margin-bottom: 0.8rem;
+    }
+
+    .loading-bar {
+      width: 180px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .loading-fill {
+      height: 100%;
+      background: #FFE600;
+      box-shadow: 0 0 8px #FFE600;
+      animation: scanbar 1.1s ease-in-out infinite;
+    }
+
+    @keyframes scanbar {
+      0%   { width: 0;    margin-left: 0; }
+      45%  { width: 100%; margin-left: 0; }
+      55%  { width: 100%; margin-left: 0; }
+      100% { width: 0;    margin-left: 100%; }
+    }
+
+    /* ── Hint ── */
     #hint {
       position: fixed;
       bottom: 2.5rem;
       left: 50%;
       transform: translateX(-50%);
-      color: rgba(255,255,255,0.25);
-      font-size: 0.75rem;
-      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.18);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.55rem;
+      letter-spacing: 3px;
       text-transform: uppercase;
       z-index: 10;
       transition: opacity 0.5s;
       pointer-events: none;
     }
 
-    #loading {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: rgba(255,255,255,0.3);
-      font-size: 0.85rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      z-index: 30;
-    }
-
+    /* ── Page overlay ── */
     #page-overlay {
       position: fixed;
       inset: 0;
@@ -171,36 +203,81 @@
       transition: opacity 0.45s ease, transform 0.45s ease;
     }
 
-    #page-overlay.visible {
-      opacity: 1;
-      transform: scale(1.05);
-    }
-
     #page-overlay.hidden {
       opacity: 0;
       transform: scale(1);
+    }
+
+    /* ── Cursor trail (desktop only) ── */
+    #cursor-trail {
+      position: fixed;
+      width: 7px;
+      height: 7px;
+      background: #FFE600;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1000;
+      box-shadow: 0 0 10px #FFE600, 0 0 22px rgba(255, 230, 0, 0.35);
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    @media (hover: hover) {
+      #cursor-trail { opacity: 1; }
+    }
+
+    /* ── Mobile pulse ring ── */
+    #pulse-ring {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      #pulse-ring {
+        position: fixed;
+        width: 110px;
+        height: 110px;
+        border: 2px solid #FFE600;
+        border-radius: 50%;
+        top: 48%;
+        left: 50%;
+        z-index: 5;
+        pointer-events: none;
+        animation: pulse-ring 2.2s ease-out infinite;
+      }
+    }
+
+    @keyframes pulse-ring {
+      0%   { transform: translate(-50%, -50%) scale(0.85); opacity: 0.7; }
+      70%  { transform: translate(-50%, -50%) scale(1.35); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0; }
     }
   </style>
 </head>
 <body>
 
   <div id="page-overlay"></div>
+  <div id="cursor-trail"></div>
 
   <nav>
-    <a href="index.html" style="color:white;">Home</a>
-    <a href="about.html" style="color:rgba(255,255,255,0.4);">About</a>
+    <a href="index.html" style="color:#FFE600;">&gt; HOME</a>
+    <a href="about.html" style="color:rgba(255,255,255,0.35);">&gt; ABOUT</a>
   </nav>
 
-  <div id="loading">Loading...</div>
+  <div id="loading">
+    <div class="loading-label">LOADING</div>
+    <div class="loading-bar"><div class="loading-fill"></div></div>
+  </div>
 
   <div class="bubble" id="bubble">
-    <p id="bubble-text">Hey, I'm Aris, welcome to my website.</p>
+    <p id="bubble-text"></p>
     <div class="bubble-footer">
-      <button id="bubble-next">Next →</button>
+      <button id="bubble-next">NEXT &rarr;</button>
     </div>
   </div>
 
-  <div id="hint">Tap to dance</div>
+  <div id="hint">tap to dance</div>
+  <div id="pulse-ring"></div>
 
   <canvas id="canvas"></canvas>
 
@@ -211,7 +288,25 @@
       requestAnimationFrame(() => overlay.classList.add('hidden'));
     });
 
-    // Bubble messages
+    // Cursor trail
+    const trail = document.getElementById('cursor-trail');
+    let trailX = window.innerWidth / 2, trailY = window.innerHeight / 2;
+    let cursorX = trailX, cursorY = trailY;
+
+    document.addEventListener('mousemove', (e) => {
+      cursorX = e.clientX;
+      cursorY = e.clientY;
+    });
+
+    (function moveTrail() {
+      trailX += (cursorX - trailX) * 0.14;
+      trailY += (cursorY - trailY) * 0.14;
+      trail.style.left = trailX + 'px';
+      trail.style.top  = trailY + 'px';
+      requestAnimationFrame(moveTrail);
+    })();
+
+    // Bubble messages + typing animation
     const messages = [
       "Hey, I'm Aris, welcome to my website.",
       "Here you'll see a bit of who I am and what I do.",
@@ -220,16 +315,35 @@
     ];
 
     let msgIndex = 0;
+    let typingTimer = null;
     const bubbleText = document.getElementById('bubble-text');
     const bubbleNext = document.getElementById('bubble-next');
+    const pulseRing  = document.getElementById('pulse-ring');
+
+    function typeText(text) {
+      if (typingTimer) clearInterval(typingTimer);
+      bubbleNext.style.display = 'none';
+      bubbleText.textContent = '';
+      let i = 0;
+      typingTimer = setInterval(() => {
+        bubbleText.textContent += text[i];
+        i++;
+        if (i >= text.length) {
+          clearInterval(typingTimer);
+          typingTimer = null;
+          if (msgIndex < messages.length - 1) {
+            bubbleNext.style.display = 'inline';
+          }
+          if (msgIndex === messages.length - 1 && pulseRing) {
+            pulseRing.style.display = 'block';
+          }
+        }
+      }, 28);
+    }
 
     function updateBubble() {
-      bubbleText.style.opacity = '0';
-      setTimeout(() => {
-        bubbleText.textContent = messages[msgIndex];
-        bubbleText.style.opacity = '1';
-        bubbleNext.style.display = msgIndex === messages.length - 1 ? 'none' : 'inline';
-      }, 150);
+      if (pulseRing) pulseRing.style.display = 'none';
+      typeText(messages[msgIndex]);
     }
 
     bubbleNext.addEventListener('click', (e) => {
@@ -240,11 +354,12 @@
       }
     });
 
-    // Called from Three.js module after dance ends
     window.resetBubble = () => {
       msgIndex = 0;
       updateBubble();
     };
+
+    window.addEventListener('load', updateBubble);
   </script>
 
   <script type="importmap">
@@ -296,7 +411,6 @@
           isZooming = true;
           zoomTarget = href;
 
-          // Fade overlay in after zoom has started
           setTimeout(() => {
             const overlay = document.getElementById('page-overlay');
             if (overlay) {
@@ -305,19 +419,16 @@
             }
           }, 350);
 
-          // Navigate after zoom + fade completes
           setTimeout(() => window.location.href = href, 800);
         });
       }
     });
 
-    // Mouse tracking
     window.addEventListener('mousemove', (e) => {
       mouseX = (e.clientX / window.innerWidth) * 2 - 1;
       mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
     });
 
-    // Touch tracking for mobile
     window.addEventListener('touchmove', (e) => {
       const t = e.touches[0];
       mouseX = (t.clientX / window.innerWidth) * 2 - 1;
@@ -326,7 +437,7 @@
 
     const clock = new THREE.Clock();
     const bubble = document.getElementById('bubble');
-    const hint = document.getElementById('hint');
+    const hint   = document.getElementById('hint');
     let isDancing = false;
     let idleModel = null, danceModel = null;
     let idleMixer = null, danceMixer = null;
@@ -408,12 +519,11 @@
       if (++loadedCount === 2) document.getElementById('loading').remove();
     }, undefined, (err) => console.error('dance.glb failed:', err));
 
-    // Click or tap to dance
     window.addEventListener('click', triggerDance);
     window.addEventListener('touchend', triggerDance, { passive: true });
 
     function triggerDance(e) {
-      if (e.target.closest('a') || e.target.closest('#bubble-next')) return;
+      if (e.target.closest('a') || e.target.closest('.bubble')) return;
       if (!isDancing && danceModel && danceMixer && danceClip) {
         isDancing = true;
         headBone = null;
@@ -445,7 +555,6 @@
       if (idleMixer) idleMixer.update(delta);
       if (danceMixer) danceMixer.update(delta);
 
-      // Camera zoom toward avatar on nav click
       if (isZooming) {
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, 0.8, 0.05);
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, 1.45, 0.05);
