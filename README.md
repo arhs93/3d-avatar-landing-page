@@ -21,7 +21,7 @@ landing-page/
 ## Stack
 
 - **Three.js** via CDN — 3D rendering, bone rotation, animation
-- **Ready Player Me** — custom 3D avatar that looks like you
+- **Avaturn** — custom 3D avatar that looks like you
 - **Mixamo** — free animations (idle + dance), exported as GLB
 - **Cloudways (PHP app)** — deployed as a static site on an existing server
 
@@ -52,7 +52,8 @@ Click loads the dance model, plays it once with `LoopOnce`, then swaps back to i
 ## Setup
 
 ### 1. Get your avatar
-- Go to [readyplayer.me](https://readyplayer.me), create your avatar, download `.glb`
+- Go to [avaturn.me](https://avaturn.me), create your avatar, download `.glb`
+
 
 ### 2. Add animations
 - Upload your `.glb` to [mixamo.com](https://mixamo.com)
